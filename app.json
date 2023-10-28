@@ -15,7 +15,11 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.expo.Visit",
+      "config": {
+        "googleMapsApiKey": "AIzaSyBgU16z2QWqtmgjJGX9lJqMT1fH2XSgdz8"
+      }
     },
     "android": {
       "adaptiveIcon": {
