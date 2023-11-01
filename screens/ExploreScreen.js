@@ -61,6 +61,31 @@ const ExploreScreen = ({ navigation }) => {
     })
   })
 
+  const interpolations = pointsOfInterests.map((poi, index) => {
+    const inputRange = [
+      (index - 1) * CARD_WIDTH,
+      index * CARD_WIDTH,
+      ((index + 1) * CARD_WIDTH),
+    ];
+
+    const scale = mapAnimation.interpolate({
+      inputRange,
+      outputRange: [1, 1.5, 1],
+      extrapolate: "clamp"
+    })
+    return {scale}
+  })
+
+  const onMarkerPress = (mapEventData) => {
+    const markerId = mapEventData._targetInst.return.key;
+    console.log(markerId)
+    let x = (markerId * CARD_WIDTH) + (markerId * 20)
+    if (Platform.OS === "ios") {
+      x = x - CARD_INSET_SPACING
+    }
+    _scrollView.current.scrollTo({x: x, y: 0, animated: true})
+  }
+
   const _map = React.useRef(null);
   const _scrollView = React.useRef(null);
 
@@ -75,8 +100,16 @@ const ExploreScreen = ({ navigation }) => {
       >
         {pointsOfInterests.map((poi, i) => {
           console.log(poi);
+          const scaleStyle = {
+            transform: [
+              {
+                scale: interpolations[i].scale,
+              },
+            ]
+          }
+          console.log(scaleStyle)
           return (
-            <Marker key={i} coordinate={poi.coordinate} title={poi.title}>
+            <Marker key={i} coordinate={poi.coordinate} title={poi.title} onPress={(e) => onMarkerPress(e)}>
               {/* <Animated.View style={styles.markerWrap}>
 
               </Animated.View> */}
@@ -130,6 +163,7 @@ const ExploreScreen = ({ navigation }) => {
             ],
             {useNativeDriver:true}
           )}
+          ref={_scrollView}
         >
           {pointsOfInterests.map((poi, i) => {
             return (
