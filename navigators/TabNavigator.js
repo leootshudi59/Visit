@@ -24,7 +24,7 @@ const CustomTabButton = ({ children, onPress }) => {
   return (
     <TouchableOpacity
       style={{
-        top: -30,
+        top: -19,
         justifyContent: "center",
         alignItems: "center",
         ...styles.shadow,
@@ -33,9 +33,9 @@ const CustomTabButton = ({ children, onPress }) => {
     >
       <View
         style={{
-          width: 70,
-          height: 70,
-          borderRadius: 35,
+          width: 65,
+          height: 65,
+          borderRadius: 33,
           backgroundColor: CSS.color.MAIN_COLOR,
         }}
       >
@@ -63,7 +63,7 @@ const TabNavigator = () => {
           elevation: 0,
           backgroundColor: "#fefdfd",
           borderRadius: 15,
-          height: 90,
+          height: 70,
           ...styles.shadow,
         },
         headerTintColor: "#fefdfd",
@@ -88,8 +88,8 @@ const TabNavigator = () => {
                 source={require("../assets/home.png")}
                 resizeMode="contain"
                 style={{
-                  width: 25,
-                  height: 25,
+                  width: 23,
+                  height: 23,
                   tintColor: focused ? CSS.color.MAIN_COLOR : "#1a1111",
                 }}
               />
@@ -97,7 +97,7 @@ const TabNavigator = () => {
                 style={{
                   color: focused ? CSS.color.MAIN_COLOR : "#1a1111",
                   fontSize: 12,
-                  marginTop: 3,
+                  marginTop: 4,
                 }}
               >
                 Home
@@ -110,29 +110,30 @@ const TabNavigator = () => {
         name={ROUTES.EXPLORE}
         component={ExploreScreen}
         options={{
+          headerShown: false,
           tabBarIcon: ({ focused }) => (
             <View
               style={{
                 alignItems: "center",
                 justifyContent: "bottom",
-                top: 7
+                top: 8
               }}
             >
               <Image
-                source={require("../assets/magnifier.png")}
+                source={require("../assets/zoom-in.png")}
                 resizeMode="contain"
                 style={{
-                  width: 25,
-                  height: 25,
-                  tintColor: "#fefdfd",
+                  width: 23,
+                  height: 23,
+                  tintColor: CSS.color.APP_WHITE,
                 }}
               />
               <Text
                 style={{
                   color: focused ? CSS.color.MAIN_COLOR : "#1a1111",
                   fontSize: 12,
-                  marginTop: 3,
-                  top: 36
+                  marginTop: 4,
+                  top: 25
                 }}
               >
                 Explore
@@ -160,8 +161,8 @@ const TabNavigator = () => {
                 source={require("../assets/chat.png")}
                 resizeMode="contain"
                 style={{
-                  width: 25,
-                  height: 25,
+                  width: 23,
+                  height: 23,
                   tintColor: focused ? CSS.color.MAIN_COLOR : "#1a1111",
                 }}
               />
@@ -169,7 +170,7 @@ const TabNavigator = () => {
                 style={{
                   color: focused ? CSS.color.MAIN_COLOR : "#1a1111",
                   fontSize: 12,
-                  marginTop: 3,
+                  marginTop: 4,
                 }}
               >
                 Chat
@@ -184,7 +185,7 @@ const TabNavigator = () => {
 
 const styles = StyleSheet.create({
   shadow: {
-    shadowColor: "7F5DF0",
+    shadowColor: "#6d6868",
     shadowOffset: {
       width: 0,
       height: 10,
