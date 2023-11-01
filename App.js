@@ -8,6 +8,8 @@ import {
   StatusBar,
   ScrollView,
 } from "react-native";
+import {useEffect} from "react";
+import { PROJECT_ID } from "@env";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
@@ -20,6 +22,9 @@ import HomeScreen from "./screens/HomeScreen";
 import DetailsScreen from "./screens/DetailsScreen";
 import MainTabScreen from "./screens/MainTabScreen";
 import TabNavigator from "./navigators/TabNavigator";
+import axios from "axios";
+// import fetchDataAndSaveToFile from "./request.js";
+// import {fetchDataAndSaveToFile} from "./request";
 
 const HomeStack = createNativeStackNavigator();
 const DetailsStack = createNativeStackNavigator();
@@ -47,6 +52,28 @@ const DetailsStackScreen = () => {
 };
 
 export default function App() {
+  const API_URL = `http://192.168.1.190:3000/api/project/${PROJECT_ID}/pointsofinterest`;
+
+  // const getData = async () => {
+  //   try {
+  //     console.log(API_URL)
+  //     const response = await fetch(API_URL, {
+  //       method: 'GET'
+  //     });
+  //     console.log(response)
+  //     const json = await response.json()
+  //     console.log(json)
+
+  //     console.log(response)
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // }
+
+  // useEffect(()=> {
+  //   getData()
+  // })
+
   return (
     <NavigationContainer>
       {/* <Drawer.Navigator initialRouteName="Tabs"

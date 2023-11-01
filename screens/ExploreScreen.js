@@ -11,11 +11,12 @@ import {
   Image,
   Dimensions,
 } from "react-native";
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { pointsOfInterests } from "../model/mapdata";
+import { points } from "../model/placesMap";
 import { ROUTES, CSS } from "../constants";
 
 import { Icon } from "react-native-vector-icons/Ionicons";
@@ -28,63 +29,71 @@ const ExploreScreen = ({ navigation }) => {
   const [region, setRegion] = React.useState({
     latitude: 45.749,
     longitude: 4.805,
-    longitudeDelta: 0.106,
+    longitudeDelta: 0.107,
     latitudeDelta: 0.029,
   });
 
   let mapIndex = 0;
-  let mapAnimation = new Animated.Value(0)
+  let mapAnimation = new Animated.Value(0);
 
   useEffect(() => {
     mapAnimation.addListener(({ value }) => {
-      let index = Math.floor(value / CARD_WIDTH + 0.3)
-      if (index >= pointsOfInterests.length) {
-        index = pointsOfInterests.length - 1
+      let index = Math.floor(value / CARD_WIDTH + 0.3);
+      if (index >= points.length) {
+        index = points.length - 1;
       }
       if (index <= 0) {
-        index = 0
+        index = 0;
       }
 
-      clearTimeout(regionTimeout)
+      clearTimeout(regionTimeout);
 
       const regionTimeout = setTimeout(() => {
         if (mapIndex !== index) {
-          mapIndex = index
-          const {coordinate} = pointsOfInterests[index];
-          _map.current.animateToRegion({
-            ...coordinate,
-            longitudeDelta: region.longitudeDelta-0.08,
-            // latitudeDelta: region.latitudeDelta
-          }, 350)
+          mapIndex = index;
+          const { coordinates } = points[index];
+          const coordinatesObj = {
+            latitude: coordinates[0],
+            longitude: coordinates[1],
+          };
+          _map.current.animateToRegion(
+            {
+              ...coordinatesObj,
+              longitudeDelta: region.longitudeDelta - 0.09,
+              latitudeDelta: region.latitudeDelta,
+            },
+            350
+          );
         }
-      }, 10)
-    })
-  })
+      }, 10);
+    });
+  });
 
-  const interpolations = pointsOfInterests.map((poi, index) => {
+  const interpolations = points.map((poi, index) => {
     const inputRange = [
       (index - 1) * CARD_WIDTH,
       index * CARD_WIDTH,
-      ((index + 1) * CARD_WIDTH),
+      (index + 1) * CARD_WIDTH,
     ];
 
     const scale = mapAnimation.interpolate({
       inputRange,
       outputRange: [1, 1.5, 1],
-      extrapolate: "clamp"
-    })
-    return {scale}
-  })
+      extrapolate: "clamp",
+    });
+    return { scale };
+  });
 
   const onMarkerPress = (mapEventData) => {
     const markerId = mapEventData._targetInst.return.key;
-    console.log(markerId)
-    let x = (markerId * CARD_WIDTH) + (markerId * 20)
+    console.log(markerId);
+    let x = markerId * CARD_WIDTH + markerId * 20;
     if (Platform.OS === "ios") {
-      x = x - CARD_INSET_SPACING
+      x = x - CARD_INSET_SPACING;
     }
-    _scrollView.current.scrollTo({x: x, y: 0, animated: true})
-  }
+    console.log("x", x);
+    _scrollView.current.scrollTo({ x: x, y: 0, animated: true });
+  };
 
   const _map = React.useRef(null);
   const _scrollView = React.useRef(null);
@@ -98,18 +107,26 @@ const ExploreScreen = ({ navigation }) => {
         initialRegion={region}
         style={{ height: "100%", width: "100%" }}
       >
-        {pointsOfInterests.map((poi, i) => {
-          console.log(poi);
+        {points.map((poi, i) => {
+          console.log(poi.name, poi._id);
           const scaleStyle = {
             transform: [
               {
                 scale: interpolations[i].scale,
               },
-            ]
-          }
-          console.log(scaleStyle)
+            ],
+          };
+          //console.log(scaleStyle)
           return (
-            <Marker key={i} coordinate={poi.coordinate} title={poi.title} onPress={(e) => onMarkerPress(e)}>
+            <Marker
+              key={i}
+              coordinate={{
+                latitude: poi.coordinates[0],
+                longitude: poi.coordinates[1],
+              }}
+              title={poi.name ? poi.name : ""}
+              onPress={(e) => onMarkerPress(e)}
+            >
               {/* <Animated.View style={styles.markerWrap}>
 
               </Animated.View> */}
@@ -128,59 +145,70 @@ const ExploreScreen = ({ navigation }) => {
           style={{ width: 20, height: 20, tintColor: CSS.color.APP_BLACK }}
         />
       </View>
-              {/* <ScrollView
+      {/* <ScrollView
           horizontal
           scrollEventThrottle={1}
           showsHorizontalScrollIndicator={false}
           style={styles.chipsScrollView}
         ></ScrollView> */}
-        <Animated.ScrollView
-          horizontal={true}
-          scrollEventThrottle={1}
-          showsHorizontalScrollIndicator={false}
-          pagingEnabled
-          style={styles.scrollView}
-          snapToInterval={ CARD_WIDTH + 20}
-          snapToAlignment={"center"}
-          contentInset={{
-            top: 0,
-            // left: CARD_INSET_SPACING,
+      <Animated.ScrollView
+        horizontal={true}
+        scrollEventThrottle={1}
+        showsHorizontalScrollIndicator={false}
+        pagingEnabled
+        style={styles.scrollView}
+        snapToInterval={CARD_WIDTH + 20}
+        snapToAlignment={"center"}
+        contentInset={{
+          top: 0,
+          // left: CARD_INSET_SPACING,
           //   bottom: 0,
           //   right: CARD_INSET_SPACING
-          }}
-          contentContainerStyle={{
-            paddingHorizontal: Platform.OS === "android" ? CARD_INSET_SPACING : 0
-          }}
-          onScroll={Animated.event(
-            [
-              {
-                nativeEvent: {
-                  contentOffset: {
-                    x: mapAnimation
-                  }
-                }
-              }
-            ],
-            {useNativeDriver:true}
-          )}
-          ref={_scrollView}
-        >
-          {pointsOfInterests.map((poi, i) => {
-            return (
-              <View style={styles.card} key={i}>
-                <Image
+        }}
+        contentContainerStyle={{
+          paddingHorizontal: Platform.OS === "android" ? CARD_INSET_SPACING : 0,
+        }}
+        onScroll={Animated.event(
+          [
+            {
+              nativeEvent: {
+                contentOffset: {
+                  x: mapAnimation,
+                },
+              },
+            },
+          ],
+          { useNativeDriver: true }
+        )}
+        ref={_scrollView}
+      >
+        {points.map((poi, i) => {
+          return (
+            <View style={styles.card} key={i}>
+              {/* <Image
                   source={poi.image}
                   style={styles.cardImage}
                   resizeMode="cover"
-                />
-                <View style={styles.textContent}>
-                  <Text numberOfLines={1}>{poi.title}</Text>
-                  <Text numberOfLines={1}>{poi.description}</Text>
-                </View>
+                /> */}
+              <View style={styles.textContent}>
+                <Text numberOfLines={2} style={styles.cardTitle}>{poi.name}</Text>
+                <Text numberOfLines={3}>{poi.description}</Text>
+
+                {poi.entrance_fee &&
+                  <View style={{display: "flex", flexDirection:"row", alignItems: "center", marginTop: 10, overflow: "hidden"}}>
+                    <Image
+                      source={require("../assets/coin.png")}
+                      style={{height: 18, width: 18, marginRight: 5}}
+                      tintColor={CSS.color.MAIN_COLOR}
+                      />
+                    <Text numberOfLines={3}>{poi.entrance_fee}</Text>
+                  </View>  
+                }
               </View>
-            );
-          })}
-        </Animated.ScrollView>
+            </View>
+          );
+        })}
+      </Animated.ScrollView>
     </View>
   );
 };
@@ -240,7 +268,7 @@ const styles = StyleSheet.create({
   },
   textContent: {
     flex: 2,
-    padding: 10,
+    padding: 15,
   },
   card: {
     marginBottom: 130,
@@ -255,6 +283,11 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     height: CSS.size.height.CARD_HEIGHT,
     width: CARD_WIDTH,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
   cardImage: {
     flex: 3,
